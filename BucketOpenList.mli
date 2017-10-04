@@ -26,4 +26,4 @@ val chooseNode : 'a t -> 'a
 
 val print : 'a t -> ('a -> string) -> unit
 
-val verify : 'a t -> unit
+val verify : 'a t -> string -> unit

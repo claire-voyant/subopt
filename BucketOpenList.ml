@@ -54,13 +54,14 @@ let verifyFVals q =
   let check_compare_f (pair:ghPair) bucket = 
     let bucket_f = pair.g +. pair.h in
     let nodes = bucket.nodes in
-    for i=0 to bucket.free-1 do
-      if (q.get_f bucket.nodes.(i) <> bucket.f) then
-        (
+    if (bucket.free <> 0) then (
+      for i=0 to bucket.free-1 do
+        if (q.get_f bucket.nodes.(i) <> bucket.f) then (
           verified := false;
           print_bucket bucket q.printer;
         )
-    done;
+      done;
+    )
   in
   Hashtbl.iter check_compare_f bucket_table;
   !verified
@@ -78,12 +79,16 @@ let verifyNodes q f =
   Hashtbl.iter check_compare_f bucket_table;
   !verified
 
-let verify q = 
+let verify q str = 
+  print_endline (Printf.sprintf "%s" str);
   let a = verifyNodes q check_fmin in
-  if (not a) then failwith "check_fmin failed";
+  if (not a) then (
+    failwith "check_fmin failed";
+  );
   let a = verifyFVals q in
-  if (not a) then failwith "verifying bucket match nodes failed"
-(*print_endline "Verified BoP :o)"*)
+  if (not a) then (
+    failwith "verifying bucket match nodes failed";
+  )
 
 
 let garb_bucket garb_node = {
@@ -139,7 +144,7 @@ let empty q = Dpq.empty_p q.openlist
   current fmin - if it does update fmin
 *)
 let insert q e =
-  (*verify q;*)
+  verify q "verifying beginning of insert";
   (*print_endline (Printf.sprintf "time to insert!");*)
   (*print_endline (Printf.sprintf "e.f < fmin | %f < %f" (q.get_f e) q.fmin);*)
   if (q.get_f e) < q.fmin then
@@ -289,7 +294,7 @@ let insert q e =
 
         )
     )
-(*verify q*)
+(*verify q;*)
 (*print_endline (Printf.sprintf "end to insert!");*)
 
 let add q e = insert q e
@@ -334,8 +339,10 @@ let print_meta e node_gh p_node q =
   print_endline (Printf.sprintf "bucket_size: %d" (Array.length (Hashtbl.find q.lookup node_gh).nodes))
 
 let replace q e p_node =
-  let node_gh = {g = q.get_g e; h = ((q.get_f e) -. (q.get_g e))} in
- try 
+  verify q "verifying beginning of replace";
+  insert q e
+(*  let node_gh = {g = q.get_g e; h = ((q.get_f e) -. (q.get_g e))} in
+  try 
     let bucket_lookup = Hashtbl.find q.lookup node_gh in
     (*print_endline (Printf.sprintf "free: %d" (bucket_lookup.free));*)
     if ((q.get_i e >= 0) && (bucket_lookup.free > 0)) then 
@@ -345,9 +352,9 @@ let replace q e p_node =
       q.set_index the_replacement (q.get_i e);
       insert q e;
   with 
-     Not_found -> insert q e
-     | Invalid_argument "index out of bounds" -> insert q e
-
+    Not_found -> insert q e
+  | Invalid_argument "index out of bounds" -> insert q e
+*)
 (*
   look at the top of the heap q.openlist
   and check the array use openlist peek
