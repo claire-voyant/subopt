@@ -1,0 +1,10 @@
+_tags
+_build/
+make/
+old/
+out/
+scripts/
+profile/
+build.sh
+*.native
+*.out
