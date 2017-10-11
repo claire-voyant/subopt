@@ -20,7 +20,7 @@ val fixOpenList : 'a t -> unit
 
 val isNotEmpty : 'a t -> bool
 
-val replace : 'a t -> 'a -> ('a -> string) -> unit
+val replace : 'a t -> 'a -> 'a -> ('a -> string) -> unit
 
 val chooseNode : 'a t -> 'a
 
