@@ -144,7 +144,7 @@ let empty q = Dpq.empty_p q.openlist
   current fmin - if it does update fmin
 *)
 let insert q e =
-  verify q "verifying beginning of insert";
+  (*verify q "verifying beginning of insert";*)
   (*print_endline (Printf.sprintf "time to insert!");*)
   (*print_endline (Printf.sprintf "e.f < fmin | %f < %f" (q.get_f e) q.fmin);*)
   if (q.get_f e) < q.fmin then
