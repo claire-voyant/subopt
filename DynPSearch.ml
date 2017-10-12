@@ -99,10 +99,15 @@ let evaluateSuccessor heuristic openlist closedlist succ act act_cost curnode no
     if node_lookup.g > succ_g then
       (
         (* found a better path update the existing node *)
-        node_lookup.plan <- act::(curnode.plan);
+	let betterNode = {
+	  f = succ_f;
+	  g = succ_g;
+	  state = curnode.state;
+	  plan = act::(curnode.plan);
+	  index = (-1);
+	} in
         (*BucketOpenList.insert openlist node_lookup*)
-        BucketOpenList.replace openlist node_lookup p_node;
-        update_fg node_lookup succ_f succ_g;
+        BucketOpenList.replace openlist node_lookup betterNode p_node;
       )
   with Not_found ->
     (* found a new node generate it and add it to the existing open *)

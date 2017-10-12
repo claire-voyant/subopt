@@ -80,7 +80,7 @@ let verifyNodes q f =
   !verified
 
 let verify q str = 
-  print_endline (Printf.sprintf "%s" str);
+  (*print_endline (Printf.sprintf "%s" str);*)
   let a = verifyNodes q check_fmin in
   if (not a) then (
     failwith "check_fmin failed";
@@ -155,6 +155,7 @@ let insert q e =
       check if we have one in the lookup table otherwise
       create one and place it into the table and openlist 
     *)
+      verify q "first step of insert";
       q.fmin <- q.get_f e; 
       let gh_pair = {g = q.get_g e; h = ((q.get_f e) -. (q.get_g e))} in
       if (Hashtbl.mem q.lookup gh_pair) then
@@ -210,6 +211,7 @@ let insert q e =
     )
   else
     (
+      verify q "second step of insert";
       (* 
       our fmin value is not changing but we need to find
       the bucket the node will be placed into similar to before
@@ -221,6 +223,7 @@ let insert q e =
         our bucket here isn't necessarily empty as fmin 
         did not change but it can be so we do similar checks
       *)
+          verify q "found the gh-pair";
           let some_bucket = Hashtbl.find q.lookup gh_pair in
 
           (*print_endline (Printf.sprintf "%d" (Array.length some_bucket.nodes));*)
@@ -245,6 +248,8 @@ let insert q e =
               (*print_endline (Printf.sprintf "%B" (some_bucket.free >= (Array.length some_bucket.nodes)));*)
               if (some_bucket.free >= (Array.length some_bucket.nodes)) then
                 (
+		 
+	          verify q "bucket is not empty and we ran out of free space";
           (*
             no more space in nodes array but need to add another node
             expand by times 2 the size of the nodes array
@@ -263,6 +268,8 @@ let insert q e =
            * there is space so just add it and update free appropriately
            *
            *)
+	          verify q "bucket is not empty and we have enough free space";
+		  q.printer e;
                   (*print_endline (Printf.sprintf "space with no fmin change");*)
                   some_bucket.nodes.(some_bucket.free) <- e; 
                   q.set_index e some_bucket.free;
@@ -338,9 +345,9 @@ let print_meta e node_gh p_node q =
   print_bucket (Hashtbl.find q.lookup node_gh) p_node;
   print_endline (Printf.sprintf "bucket_size: %d" (Array.length (Hashtbl.find q.lookup node_gh).nodes))
 
-let replace q e p_node =
+let replace q e replacement p_node =
   verify q "verifying beginning of replace";
-  insert q e
+  insert q replacement
 (*  let node_gh = {g = q.get_g e; h = ((q.get_f e) -. (q.get_g e))} in
   try 
     let bucket_lookup = Hashtbl.find q.lookup node_gh in
