@@ -128,7 +128,7 @@ let run_wa_gw (conf) =
   let t = Sys.time () in
   let (solution, nodes) = run_gridworld_wa_star (conf) in
   print_endline (Printf.sprintf "Execution time: %fs\n" (Sys.time () -. t));
-  print_endline (Printf.sprintf "Nodes Expanded: %d\n" nodes);
+  print_endline (Printf.sprintf "Nodes Generated: %d\n" nodes);
   WeightedAStar.print_node solution GridWorld.print_state GridWorld.string_of_action
 
 let run_wa_stp (conf) = 
@@ -136,7 +136,7 @@ let run_wa_stp (conf) =
   let t = Sys.time () in
   let (solution, nodes) = run_tiles_wa_star (conf) in
   print_endline (Printf.sprintf "Execution time: %fs\n" (Sys.time () -. t));
-  print_endline (Printf.sprintf "Nodes Expanded: %d\n" nodes);
+  print_endline (Printf.sprintf "Nodes Generated: %d\n" nodes);
   WeightedAStar.print_node solution SlidingTile.print_tile_puzzle SlidingTile.string_of_action
 
 let run_dps_gw (conf) = 
@@ -144,7 +144,7 @@ let run_dps_gw (conf) =
   let t = Sys.time () in
   let (solution,nodes) = run_gridworld_dps (conf) in
   print_endline (Printf.sprintf "Execution time: %fs\n" (Sys.time () -. t));
-  print_endline (Printf.sprintf "Nodes Expanded: %d\n" nodes);
+  print_endline (Printf.sprintf "Nodes Generated: %d\n" nodes);
   DynPSearch.print_node solution GridWorld.print_state GridWorld.string_of_action
 
 let run_dps_stp (conf) = 
@@ -152,7 +152,7 @@ let run_dps_stp (conf) =
   let t = Sys.time () in
   let (solution, nodes) = run_tiles_dps (conf) in
   print_endline (Printf.sprintf "Execution time: %fs\n" (Sys.time () -. t));
-  print_endline (Printf.sprintf "Nodes Expanded %d\n" nodes);
+  print_endline (Printf.sprintf "Nodes Generated: %d\n" nodes);
   DynPSearch.print_node solution SlidingTile.print_tile_puzzle SlidingTile.string_of_action
 
 

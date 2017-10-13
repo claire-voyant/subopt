@@ -26,10 +26,8 @@ let fail_node s = {
 }
 
 let sort_f a_node b_node =
-  if a_node.f < b_node.f then
+  if a_node.f <= b_node.f then
     true
-  else if a_node.g < b_node.g then  
-    false
   else 
     false
 
@@ -49,7 +47,7 @@ let print_nodee ele =
   let h = f -. g in
   print_endline (Printf.sprintf "f=%f\ng=%f\nh=%f\n" f g h)
 
-let addToExisting openlist closedlist h g f state act plan gen = 
+let addToExisting openlist closedlist g f state act plan gen = 
   let succ_node = {
     f = f;
     g = g;
@@ -71,44 +69,41 @@ let run init_state goal_check successors heuristic =
     state = init_state;
     plan = [];
   } in
-  let openlist = Dpq.create sort_f node_notify 10000 init_node in
+  let openlist = Dpq.create sort_f node_notify 10000000 init_node in
   let closedlist = Hashtbl.create 10000000 in
   Dpq.insert openlist init_node;
   Hashtbl.add closedlist (init_state) init_node;
   let rec expand () =
     let curnode = Dpq.extract_first openlist in 
-    (*print_endline (Printf.sprintf "Nodes expanded: %d ; Nodes generated: %d ; \n" !nodes_expanded !nodes_generated);*)
     ExperimentRecord.inc_exp nodeStats ();
     (* performs A* expansions until a goal is found *)
     if ( goal_check curnode.state ) then
-        curnode, (ExperimentRecord.get_exp nodeStats ())
+        curnode, (ExperimentRecord.get_gen nodeStats ())
     else
       (
         (* expand successors *)
-        (*Dpq.iter ( fun ele -> print_endline "openlist:\n"; print_nodee ele) openlist;*)
         List.iter (fun (succ, act, act_cost) ->  
             (* generate node for successor *)
-            let succ_h = heuristic succ in 
-            let succ_g = curnode.g +. act_cost in
-            let succ_f = succ_g +. succ_h in 
+            let succ_node = {
+              f = curnode.g +. act_cost +. heuristic succ;
+              g = curnode.g +. act_cost;
+              state = succ;
+              plan = act::(curnode.plan);
+            } in
             try
               let node_lookup = Hashtbl.find closedlist succ in
-              if node_lookup.g > succ_g then
+              if node_lookup.g > succ_node.g then
                 (
                   (* found a better path update the existing node *)
-                  node_lookup.f <- succ_f;
-                  node_lookup.g <- succ_g;
-                  node_lookup.plan <- act::(curnode.plan);
-                  (* Hashtbl.replace closedlist succ succ_node;*)
-                  Dpq.insert openlist node_lookup;
+                  Hashtbl.replace closedlist succ succ_node;
+                  Dpq.insert openlist succ_node;
                 )
             with Not_found -> 
               (* found a new node generate it and add it to existing open *)
-              (addToExisting openlist closedlist succ_h succ_g succ_f succ act curnode.plan nodeStats)
+              (addToExisting openlist closedlist succ_node.g succ_node.f succ act curnode.plan nodeStats)
           ) (successors curnode.state);
         expand (); 
       ) in
-  (*print_endline (Printf.sprintf "Beginning to plan...wish me luck...\n");*)
   expand ();
 
 

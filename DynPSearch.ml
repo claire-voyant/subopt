@@ -91,27 +91,23 @@ let addToExisting openlist closedlist g f state act plan gen =
 let evaluateSuccessor heuristic openlist closedlist succ act act_cost curnode nodeStats =
   if (BucketOpenList.checkFMin openlist) then  
     BucketOpenList.fixOpenList openlist;
-  let succ_h = heuristic succ in
-  let succ_g = curnode.g +. act_cost in
-  let succ_f = succ_g +. succ_h in
+  let succ_node = {
+    f = curnode.g +. act_cost +. heuristic succ;
+    g = curnode.g +. act_cost;
+    state = succ;
+    plan = act::(curnode.plan);
+    index = (-1);
+  } in
   try
     let node_lookup = Hashtbl.find closedlist succ in
-    if node_lookup.g > succ_g then
+    if node_lookup.g > succ_node.g then
       (
         (* found a better path update the existing node *)
-	let betterNode = {
-	  f = succ_f;
-	  g = succ_g;
-	  state = curnode.state;
-	  plan = act::(curnode.plan);
-	  index = (-1);
-	} in
-        (*BucketOpenList.insert openlist node_lookup*)
-        BucketOpenList.replace openlist node_lookup betterNode p_node;
+        BucketOpenList.replace openlist node_lookup succ_node p_node;
       )
   with Not_found ->
     (* found a new node generate it and add it to the existing open *)
-    (addToExisting openlist closedlist succ_g succ_f succ act curnode.plan nodeStats)
+    (addToExisting openlist closedlist succ_node.g succ_node.f succ act curnode.plan nodeStats)
 
 let expandCurrentNode openlist nodeStats goal_check heuristic closedlist successors = 
   let rec expand () = 
